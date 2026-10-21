@@ -1,0 +1,268 @@
+### Perto de Você — requests para a extensão "REST Client" (VS Code)
+### Ordem sugerida: login -> admin -> públicas. Os ids/tokens são reaproveitados automaticamente.
+### Para os uploads, coloque um PDF real em ./exemplo.pdf (na mesma pasta deste arquivo).
+
+@baseUrl = http://localhost:3000
+@adminEmail = admin@exemplo.com
+@adminSenha = troque-pela-senha-do-seed
+
+############################################################
+# PÚBLICAS (sem login)
+############################################################
+
+### Health
+GET {{baseUrl}}/health
+
+### Categorias
+GET {{baseUrl}}/categorias
+
+### Conteúdos publicados (todos)
+GET {{baseUrl}}/conteudos
+
+### Conteúdos filtrados por tipo
+GET {{baseUrl}}/conteudos?tipo=PANFLETO
+
+### Conteúdos filtrados por tipo + categoria (slug)
+GET {{baseUrl}}/conteudos?tipo=VIDEO&categoria=evangelismo
+
+### Um conteúdo publicado (usa o id criado mais abaixo)
+GET {{baseUrl}}/conteudos/{{panfletoId}}
+
+### Desafios ativos
+GET {{baseUrl}}/desafios
+
+############################################################
+# ADMIN — SESSÃO
+############################################################
+
+### Login (guarda o token)
+# @name login
+POST {{baseUrl}}/session
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "senha": "{{adminSenha}}"
+}
+
+###
+@token = {{login.response.body.$.token}}
+
+### Dados do admin logado
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Sem token -> 401
+GET {{baseUrl}}/admin/conteudos
+
+############################################################
+# ADMIN — CONTEÚDOS
+############################################################
+
+### Listar tudo (inclusive não publicados)
+GET {{baseUrl}}/admin/conteudos
+Authorization: Bearer {{token}}
+
+### Listar só vídeos
+GET {{baseUrl}}/admin/conteudos?tipo=VIDEO
+Authorization: Bearer {{token}}
+
+### Criar PANFLETO (exige PDF)
+# @name criarPanfleto
+POST {{baseUrl}}/admin/conteudos
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="tipo"
+
+PANFLETO
+--fronteira
+Content-Disposition: form-data; name="titulo"
+
+Panfleto de teste
+--fronteira
+Content-Disposition: form-data; name="descricao"
+
+Panfleto para entregar na rua
+--fronteira
+Content-Disposition: form-data; name="ordem"
+
+1
+--fronteira
+Content-Disposition: form-data; name="publicado"
+
+false
+--fronteira
+Content-Disposition: form-data; name="file"; filename="exemplo.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+--fronteira--
+
+###
+@panfletoId = {{criarPanfleto.response.body.$.id}}
+
+### Criar VIDEO (exige link; não aceita arquivo)
+# @name criarVideo
+POST {{baseUrl}}/admin/conteudos
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="tipo"
+
+VIDEO
+--fronteira
+Content-Disposition: form-data; name="titulo"
+
+Como abordar uma pessoa
+--fronteira
+Content-Disposition: form-data; name="descricao"
+
+Vídeo de treinamento
+--fronteira
+Content-Disposition: form-data; name="link"
+
+https://www.youtube.com/watch?v=exemplo
+--fronteira
+Content-Disposition: form-data; name="publicado"
+
+true
+--fronteira--
+
+###
+@videoId = {{criarVideo.response.body.$.id}}
+
+### Criar MATERIAL só com texto (exige arquivo OU texto)
+# @name criarMaterial
+POST {{baseUrl}}/admin/conteudos
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="tipo"
+
+MATERIAL
+--fronteira
+Content-Disposition: form-data; name="titulo"
+
+Roteiro de abordagem
+--fronteira
+Content-Disposition: form-data; name="descricao"
+
+Passo a passo para conversar
+--fronteira
+Content-Disposition: form-data; name="texto"
+
+1. Cumprimente. 2. Pergunte. 3. Compartilhe.
+--fronteira--
+
+###
+@materialId = {{criarMaterial.response.body.$.id}}
+
+### Erro esperado (400): PANFLETO sem arquivo
+POST {{baseUrl}}/admin/conteudos
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="tipo"
+
+PANFLETO
+--fronteira
+Content-Disposition: form-data; name="titulo"
+
+Sem arquivo
+--fronteira
+Content-Disposition: form-data; name="descricao"
+
+Deve falhar
+--fronteira--
+
+### Editar: só título e ordem (o PDF e o resto ficam como estão)
+PUT {{baseUrl}}/admin/conteudos/{{panfletoId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="titulo"
+
+Panfleto editado
+--fronteira
+Content-Disposition: form-data; name="ordem"
+
+5
+--fronteira--
+
+### Editar: trocar o PDF (o antigo é apagado do Cloudinary)
+PUT {{baseUrl}}/admin/conteudos/{{panfletoId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=fronteira
+
+--fronteira
+Content-Disposition: form-data; name="file"; filename="exemplo.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+--fronteira--
+
+### Publicar
+PATCH {{baseUrl}}/admin/conteudos/{{panfletoId}}/publicado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "publicado": true }
+
+### Despublicar
+PATCH {{baseUrl}}/admin/conteudos/{{panfletoId}}/publicado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "publicado": false }
+
+### Remover conteúdos (apaga também o PDF no Cloudinary)
+DELETE {{baseUrl}}/admin/conteudos/{{panfletoId}}
+Authorization: Bearer {{token}}
+
+###
+DELETE {{baseUrl}}/admin/conteudos/{{videoId}}
+Authorization: Bearer {{token}}
+
+###
+DELETE {{baseUrl}}/admin/conteudos/{{materialId}}
+Authorization: Bearer {{token}}
+
+############################################################
+# ADMIN — DESAFIOS
+############################################################
+
+### Listar todos (inclusive inativos)
+GET {{baseUrl}}/admin/desafios
+Authorization: Bearer {{token}}
+
+### Criar
+# @name criarDesafio
+POST {{baseUrl}}/admin/desafios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "titulo": "Fale de Jesus",
+  "descricao": "Fale de Jesus para uma pessoa hoje",
+  "ordem": 1
+}
+
+###
+@desafioId = {{criarDesafio.response.body.$.id}}
+
+### Editar (só o que for enviado)
+PUT {{baseUrl}}/admin/desafios/{{desafioId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "ativo": false }
+
+### Remover
+DELETE {{baseUrl}}/admin/desafios/{{desafioId}}
+Authorization: Bearer {{token}}

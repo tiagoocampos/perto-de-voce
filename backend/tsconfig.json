@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    // Layout dos arquivos
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Ambiente
+    "module": "nodenext",
+    "target": "esnext",
+    "types": [],
+
+    // Saídas
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Checagem mais rígida
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Recomendadas
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  // prisma.config.ts e prisma/seed.ts ficam fora do src: o Prisma CLI e o tsx cuidam deles
+  "include": ["src"]
+}

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TipoConteudo {
+  PANFLETO
+  VIDEO
+  MATERIAL
+}
+
+model Admin {
+  id       String   @id @default(uuid())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoEm DateTime @default(now())
+}
+
+model Categoria {
+  id        String     @id @default(uuid())
+  nome      String     @unique
+  slug      String     @unique
+  conteudos Conteudo[]
+}
+
+model Conteudo {
+  id              String       @id @default(uuid())
+  tipo            TipoConteudo
+  titulo          String
+  descricao       String
+  arquivoUrl      String? // PDF/arquivo no Cloudinary
+  arquivoPublicId String? // para apagar do Cloudinary
+  link            String? // vídeo (YouTube etc.)
+  texto           String? // material em texto
+  publicado       Boolean      @default(false)
+  ordem           Int          @default(0)
+  categoriaId     String?
+  categoria       Categoria?   @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  criadoEm        DateTime     @default(now())
+  atualizadoEm    DateTime     @updatedAt
+
+  @@index([tipo, publicado, ordem])
+}
+
+model Desafio {
+  id           String   @id @default(uuid())
+  titulo       String
+  descricao    String
+  ordem        Int      @default(0)
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
