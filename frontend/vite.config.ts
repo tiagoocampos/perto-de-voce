@@ -38,6 +38,8 @@ export default defineConfig({
         // Fontes de alfabetos que o português não usa (o Fontsource traz todos os subsets)
         globIgnores: ["**/*cyrillic*", "**/*greek*", "**/*vietnamese*"],
         navigateFallback: "/index.html",
+        // O painel não é para uso offline: sempre vai à rede, para nunca abrir uma versão velha da casca
+        navigateFallbackDenylist: [/^\/admin/],
         cleanupOutdatedCaches: true,
       },
     }),

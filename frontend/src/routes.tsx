@@ -7,6 +7,7 @@ import { Materiais } from "./pages/Materiais";
 import { Desafios } from "./pages/Desafios";
 import { VideoDetalhe } from "./pages/VideoDetalhe";
 import { MaterialLeitura } from "./pages/MaterialLeitura";
+import { Instalar } from "./pages/Instalar";
 import { NotFound } from "./pages/NotFound";
 
 // admin
@@ -28,6 +29,8 @@ export function RoutesApp() {
                     <Route path="/materiais" element={<Materiais />} />
                     <Route path="/materiais/:id" element={<MaterialLeitura />} />
                     <Route path="/desafios" element={<Desafios />} />
+                    {/* fora da barra inferior: é uma página para compartilhar o link de instalação */}
+                    <Route path="/instalar" element={<Instalar />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>
 
