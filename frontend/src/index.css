@@ -1,0 +1,145 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/libre-franklin";
+@import "@fontsource-variable/source-serif-4";
+
+/* Não há modo escuro nesta versão: o variant `dark:` do shadcn só vale com a classe .dark (que nunca é usada).
+   Sem esta linha o Tailwind v4 usaria o modo escuro do sistema e misturaria as cores. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Tipografia: Libre Franklin na interface e nos títulos, Source Serif 4 nos textos para ler */
+  --font-sans: "Libre Franklin Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+
+  /* Formas: folha de panfleto quase reta (4px), botões e campos médios (~10px), barra inferior reta */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-folha: 4px;
+
+  /* Paleta da marca, para usar direto: bg-noite, text-luz, bg-papel... */
+  --color-noite: var(--noite);
+  --color-luz: var(--luz);
+  --color-nevoa: var(--nevoa);
+  --color-papel: var(--papel);
+  --color-grafite: var(--grafite);
+  --color-brasa: var(--brasa);
+
+  /* Tokens que os componentes do shadcn esperam */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  /* Paleta */
+  --noite: #13264a; /* texto forte, cabeçalho, botão principal */
+  --luz: #f4b63f; /* único destaque: ação sobre fundo Noite, selos, foco sobre Noite */
+  --nevoa: #eef1f7; /* fundo do app */
+  --papel: #ffffff; /* folhas, listas, formulários */
+  --grafite: #4a5670; /* texto secundário */
+  --brasa: #b3401a; /* erro e ação destrutiva (admin) */
+
+  /* Tokens do shadcn apontando para a paleta */
+  --background: var(--nevoa);
+  --foreground: var(--noite);
+  --card: var(--papel);
+  --card-foreground: var(--noite);
+  --popover: var(--papel);
+  --popover-foreground: var(--noite);
+  --primary: var(--noite);
+  --primary-foreground: var(--papel);
+  --secondary: #e3e8f2;
+  --secondary-foreground: var(--noite);
+  --muted: #e3e8f2;
+  --muted-foreground: var(--grafite);
+  --accent: #e3e8f2;
+  --accent-foreground: var(--noite);
+  --destructive: var(--brasa);
+  --border: #d3d9e6; /* divisórias */
+  --input: #7c879e; /* borda de campos: precisa de 3:1 contra o fundo */
+  /* Luz sobre fundo claro tem só 1,6:1 de contraste: o anel de foco é Noite nas áreas claras
+     e vira Luz dentro de .sobre-noite */
+  --ring: var(--noite);
+}
+
+/* Áreas de fundo Noite (cabeçalho, hero, barra do admin): foco em Luz */
+.sobre-noite {
+  --ring: var(--luz);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Títulos de manchete: peso 800, espaçamento levemente apertado */
+  h1,
+  h2,
+  h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Carimbo do selo de desafio: entra grande e assenta. É a única animação de destaque do app.
+     Só roda quando a pessoa toca em "Concluir desafio" (a classe só é aplicada nesse caso). */
+  @keyframes carimbar {
+    0% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(0.92);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animar-carimbo {
+    animation: carimbar 280ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

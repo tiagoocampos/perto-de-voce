@@ -41,7 +41,7 @@ Erros vêm como `{ "error": "mensagem" }`. Erros de validação (400) vêm como 
 | Rota | Descrição |
 |---|---|
 | `GET /health` | `{ "status": "ok" }` |
-| `GET /conteudos?tipo=&categoria=` | Só publicados. `tipo`: `PANFLETO`, `VIDEO` ou `MATERIAL`. `categoria`: slug. Ordem: `ordem` asc, `criadoEm` desc. Não traz o `texto` |
+| `GET /conteudos?tipo=&categoria=` | Só publicados. `tipo`: `PANFLETO`, `VIDEO` ou `MATERIAL`. `categoria`: slug. Ordem: `ordem` asc, `criadoEm` desc. Não traz o `texto`, só `temTexto` (true/false) |
 | `GET /conteudos/:id` | Um conteúdo publicado, com `texto`. Rascunho dá 404 |
 | `GET /desafios` | Só ativos, por `ordem` |
 | `GET /categorias` | Categorias fixas (`id`, `nome`, `slug`) |

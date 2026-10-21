@@ -15,7 +15,8 @@ class ListConteudosService {
         ...(categoria !== undefined && { categoria: { slug: categoria } }),
       },
       orderBy: [{ ordem: "asc" }, { criadoEm: "desc" }],
-      // Só o que o app precisa: sem arquivoPublicId, publicado, categoriaId nem o texto (vem no detalhe)
+      // Só o que o app precisa: sem arquivoPublicId, publicado nem categoriaId.
+      // O texto em si vem só no detalhe; aqui ele é lido apenas para virar `temTexto`.
       select: {
         id: true,
         tipo: true,
@@ -23,6 +24,7 @@ class ListConteudosService {
         descricao: true,
         arquivoUrl: true,
         link: true,
+        texto: true,
         ordem: true,
         criadoEm: true,
         categoria: {
@@ -31,7 +33,11 @@ class ListConteudosService {
       },
     });
 
-    return conteudos;
+    // O app precisa saber se o material tem texto para ler, sem baixar o texto de todos
+    return conteudos.map(({ texto, ...conteudo }) => ({
+      ...conteudo,
+      temTexto: !!texto?.trim(),
+    }));
   }
 }
 
